@@ -6,14 +6,13 @@ import (
 	"os"
 	"os/user"
 	"strconv"
-	"strings"
 )
 
-const version string = "0.0.1"
+const version string = "0.1.0"
 
 type userInfo struct {
 	// get uinfo from user.User
-	uinfo *user.User
+	*user.User
 	ginfo string
 }
 
@@ -24,8 +23,7 @@ func main() {
 	u, err := grabUserInfo(checkUserArg(a))
 	errCheck(err, 2)
 
-	var ui userInfo
-	ui.uinfo = u
+	ui := userInfo{u, ""}
 	display(grabUserGroups(ui))
 }
 
@@ -84,7 +82,7 @@ func errCheck(e error, ex int) {
 // grabUserGroups grabe the user groups for given ID
 func grabUserGroups(ui userInfo) userInfo {
 
-	g, err := ui.uinfo.GroupIds()
+	g, err := ui.GroupIds()
 	errCheck(err, 4)
 
 	for _, v := range g {
@@ -99,29 +97,27 @@ func grabUserGroups(ui userInfo) userInfo {
 // display shows formated output
 func display(u userInfo) {
 
-	fmt.Println("username: ", u.uinfo.Username)
-	fmt.Println("Name:     ", u.uinfo.Name)
-	fmt.Println("homeDir:  ", u.uinfo.HomeDir)
-	fmt.Println("uid:      ", u.uinfo.Uid)
-	fmt.Println("gid:      ", u.uinfo.Gid)
-
-	fmt.Println(strings.Repeat("-", 30))
-	fmt.Print("Groups:    ")
-	fmt.Println(u.ginfo)
-
+	fmt.Printf(`username:     %s
+Name:         %s
+homeDir:      %s
+uid:          %s
+Groups:       %s
+`,
+		u.Username,
+		u.Name,
+		u.HomeDir,
+		u.Uid,
+		u.ginfo)
 }
 
 // usage Well, usage only
 func usage() {
 
-	ut := `Print user and group information for the specified USER
+	fmt.Printf(`Usage: %s [OPTION]... [USER]
+Print user and group information for the specified USER
 or (when USER omitted) for the current user.
 
   -v, --version     output version information and exit
   -h, --help        display this help and exit
-	`
-
-	fmt.Printf("Usage: %s [OPTION]... [USER]\n", os.Args[0])
-	fmt.Printf("%s \n", ut)
-
+`, os.Args[0])
 }
